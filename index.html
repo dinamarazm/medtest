@@ -1,197 +1,316 @@
-            <input
-                type="file"
-                id="backupInput"
-                class="file-input"
-                accept=".json,application/json"
-                onchange="importBackup(event)"
-            >
-        </div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#edf3ef">
+<title>МедТест 2.0 — Медицинский тренажёр</title>
 
-        <p class="small-text" style="margin-top:16px">
-            Резервная копия содержит статистику, историю экзаменов,
-            избранное и текущую сессию.
-        </p>
+<style>
+:root {
+    --bg:#edf3ef;
+    --surface:#fff;
+    --primary:#315e50;
+    --primary-dark:#24483d;
+    --primary-light:#e2eee7;
+    --text:#243b34;
+    --muted:#82938a;
+    --border:#e1eae4;
+    --green:#e0f1e5;
+    --green-text:#287348;
+    --red:#fae8e5;
+    --red-text:#b64c45;
+    --gold:#f4edda;
+    --shadow:0 10px 35px rgba(42,75,61,.07);
+}
+*{box-sizing:border-box}
+body{
+    margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:18px
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.app{max-width:1050px;margin:auto;padding:24px 20px 55px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:34px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:50px;height:50px;display:grid;place-items:center;background:var(--primary);color:white;border-radius:16px;font-size:30px;font-weight:300}
+.brand-name{font-size:23px;font-weight:800;letter-spacing:-.6px}
+.brand-sub{color:var(--muted);font-size:12px;margin-top:3px}
+.save-indicator{color:var(--green-text);background:var(--green);padding:9px 13px;border-radius:30px;font-size:12px;font-weight:700}
+.hero{margin-bottom:25px}
+.hero h1{font-size:clamp(28px,5vw,40px);letter-spacing:-1.2px;margin:0 0 9px}
+.hero p{margin:0;color:var(--muted);font-size:16px;line-height:1.6}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:23px;padding:24px;box-shadow:var(--shadow);margin-bottom:19px}
+.panel-title{font-size:20px;font-weight:800;margin-bottom:17px}
+.resume-panel{background:#e4efe8;border-color:#d5e5da}
+.resume-panel .panel-title{color:var(--primary)}
+.resume-info{color:#617c6c;font-size:14px;margin:7px 0 17px;line-height:1.5}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.stat{background:white;border:1px solid var(--border);border-radius:16px;padding:16px}
+.stat-number{font-size:27px;font-weight:800;color:var(--primary)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:5px}
+.progress-line{height:9px;background:#e8efea;border-radius:20px;overflow:hidden;margin:12px 0}
+.progress-line div{height:100%;background:var(--primary);border-radius:20px;transition:width .3s}
+.progress-caption{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted)}
+.modes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.mode-card{border:1px solid var(--border);border-radius:18px;padding:19px;background:#fbfdfb;text-align:left;color:var(--text);min-height:145px;transition:.2s}
+.mode-card:hover{border-color:#91b19e;background:#f1f7f2;transform:translateY(-2px)}
+.mode-icon{font-size:29px;margin-bottom:12px}
+.mode-title{font-size:17px;font-weight:800;margin-bottom:7px}
+.mode-description{font-size:13px;line-height:1.45;color:var(--muted)}
+.mode-count{display:inline-block;font-size:11px;background:var(--primary-light);color:var(--primary);padding:5px 9px;border-radius:20px;margin-top:11px;font-weight:700}
+.mode-card.exam{background:#f4f2e9;border-color:#e9e3ce}
+.mode-card.exam:hover{background:#f7f5ec;border-color:#c8b987}
+.btn{min-height:52px;border:0;border-radius:13px;padding:13px 20px;font-weight:750;transition:.2s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:var(--primary-light);color:var(--primary)}
+.btn-light{background:#f1f5f2;color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:var(--red);color:var(--red-text)}
+.btn-full{width:100%}
+.small-text{font-size:13px;line-height:1.5;color:var(--muted)}
+.footer{text-align:center;font-size:12px;color:var(--muted);padding:15px 0}
+.hidden{display:none!important}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:20px}
+.quiz-mode{font-size:12px;color:var(--primary);background:var(--primary-light);border-radius:20px;padding:8px 12px;font-weight:750}
+.quiz-counter{font-size:14px;color:var(--muted);font-weight:650}
+.quiz-progress{height:9px;border-radius:20px;background:#e9efea;overflow:hidden;margin-bottom:29px}
+.quiz-progress div{height:100%;width:0;background:var(--primary);transition:width .3s}
+.question-category{color:var(--primary);font-size:13px;font-weight:750;margin-bottom:12px}
+.question-title{font-size:clamp(22px,4vw,29px);line-height:1.45;letter-spacing:-.4px;margin:0 0 23px;white-space:pre-wrap}
+.question-instruction{color:var(--muted);font-size:14px;margin-bottom:14px}
+.options{display:flex;flex-direction:column;gap:11px}
+.option{display:flex;align-items:center;width:100%;gap:13px;min-height:65px;padding:14px 16px;background:#fbfdfb;border:2px solid var(--border);border-radius:15px;text-align:left;color:var(--text);line-height:1.45;transition:.2s}
+.option:hover:not(:disabled){border-color:#9cb6a6;background:#f5faf6}
+.option.selected{background:#e6f0e9;border-color:var(--primary)}
+.option.correct{background:var(--green);border-color:#9ac9a8;color:var(--green-text)}
+.option.wrong{background:var(--red);border-color:#e4aaa3;color:var(--red-text)}
+.option-letter{flex-shrink:0;width:35px;height:35px;border-radius:10px;background:#edf3ef;display:grid;place-items:center;font-size:14px;font-weight:800;color:var(--primary)}
+.option.correct .option-letter{background:#c4e6ce}
+.option.wrong .option-letter{background:#f3cfca}
+.option:disabled{cursor:default}
+.feedback{display:none;padding:18px;border-radius:15px;margin-top:19px;font-size:15px;line-height:1.55}
+.feedback.show{display:block}
+.feedback.success{background:var(--green);color:var(--green-text)}
+.feedback.error{background:var(--red);color:var(--red-text)}
+.feedback-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.feedback-description{font-size:14px}
+.quiz-actions{display:flex;gap:10px;margin-top:24px}
+.quiz-actions .btn-primary{flex:1}
+.quiz-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px}
+.hint-button{border:0;background:none;color:var(--primary);font-size:14px;font-weight:700;padding:9px 0}
+.hint-box{display:none;background:#f5f3e9;border-radius:12px;padding:14px;font-size:14px;line-height:1.5;color:#786a42;margin-top:12px}
+.hint-box.show{display:block}
+.result-screen{text-align:center}
+.result-icon{width:90px;height:90px;display:grid;place-items:center;background:var(--primary-light);border-radius:50%;font-size:43px;margin:0 auto 18px}
+.result-screen h2{font-size:30px;margin:0 0 10px}
+.result-description{color:var(--muted);font-size:15px;line-height:1.5}
+.result-percent{font-size:60px;font-weight:850;color:var(--primary);margin:20px 0}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:23px 0}
+.result-box{background:#f2f6f3;border-radius:15px;padding:17px 9px}
+.result-box strong{display:block;font-size:26px;color:var(--primary)}
+.result-box span{font-size:12px;color:var(--muted);display:block;margin-top:5px}
+.result-buttons{display:flex;flex-direction:column;gap:11px;margin-top:24px}
+.review-item{padding:16px;border:1px solid var(--border);border-radius:14px;margin-top:12px;text-align:left}
+.review-question{font-weight:750;line-height:1.45;margin-bottom:12px}
+.review-answer{font-size:14px;line-height:1.5;margin-top:7px}
+.review-correct{color:var(--green-text)}
+.review-wrong{color:var(--red-text)}
+.review-list{margin-top:24px}
+.history-row{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--border);padding:14px 0;font-size:14px}
+.history-row:last-child{border-bottom:0}
+.history-score{color:var(--primary);font-weight:800}
+.empty-state{color:var(--muted);font-size:14px;line-height:1.5;padding:15px 0}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;background:#24483d;color:white;padding:13px 20px;border-radius:13px;font-size:14px;box-shadow:var(--shadow);display:none;max-width:90%;text-align:center}
+.toast.show{display:block}
+.section-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+@media(max-width:700px){.modes-grid{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){
+.app{padding:15px 12px 35px}.header{margin-bottom:25px}.brand-name{font-size:20px}.brand-sub{font-size:10px}
+.logo{width:44px;height:44px}.save-indicator{font-size:10px;padding:8px}
+.panel{padding:18px;border-radius:19px}.modes-grid{gap:9px}.mode-card{padding:14px;min-height:145px}
+.mode-title{font-size:15px}.mode-description{font-size:12px}.option{padding:12px;min-height:65px;font-size:16px}
+.quiz-actions{flex-direction:column}.quiz-actions .btn{width:100%}.result-grid{gap:7px}
+.result-box{padding:14px 5px}.result-box strong{font-size:23px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="header">
+    <div class="brand">
+        <div class="logo">✚</div>
+        <div>
+            <div class="brand-name">МедТест 2.0</div>
+            <div class="brand-sub">Медицинский тренажёр знаний</div>
+        </div>
+    </div>
+    <div class="save-indicator" id="saveIndicator">✓ Сохранение включено</div>
+</header>
+
+<section id="dashboard">
+    <div class="hero">
+        <h1>Добро пожаловать!</h1>
+        <p>Учитесь в удобном темпе, закрепляйте знания и готовьтесь к медицинскому экзамену.</p>
     </div>
 
-</section>
+    <div id="resumePanel" class="panel resume-panel hidden">
+        <div class="panel-title">Продолжить обучение</div>
+        <div id="resumeInfo" class="resume-info"></div>
+        <button class="btn btn-primary btn-full" onclick="resumeSession()">▶ Продолжить с места остановки</button>
+    </div>
 
-<!-- ЭКРАН ТЕСТИРОВАНИЯ -->
-
-<section id="quizScreen" class="hidden">
+    <div class="stats-grid">
+        <div class="stat"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Всего вопросов</div></div>
+        <div class="stat"><div class="stat-number" id="statStudied">0</div><div class="stat-label">Уже встречались</div></div>
+        <div class="stat"><div class="stat-number" id="statMistakes">0</div><div class="stat-label">На повторении</div></div>
+        <div class="stat"><div class="stat-number" id="statMastered">0</div><div class="stat-label">Освоено</div></div>
+    </div>
 
     <div class="panel">
+        <div class="panel-title">Мой прогресс</div>
+        <div class="progress-caption"><span>Вопросы, которые уже встречались</span><strong id="progressNumber">0 из 0</strong></div>
+        <div class="progress-line"><div id="overallProgress" style="width:0%"></div></div>
+        <div class="progress-caption"><span>Общий прогресс знакомства с вопросами</span><strong id="overallPercent">0%</strong></div>
+    </div>
 
+    <div class="panel">
+        <div class="panel-title">Выбери режим подготовки</div>
+        <div class="modes-grid">
+            <button class="mode-card" onclick="startMode('learning')">
+                <div class="mode-icon">📚</div><div class="mode-title">Обучение</div>
+                <div class="mode-description">Все вопросы по порядку в случайной последовательности. Ответ проверяется сразу.</div>
+                <span class="mode-count" id="learningCount">Все вопросы</span>
+            </button>
+            <button class="mode-card" onclick="startMode('test50')">
+                <div class="mode-icon">📝</div><div class="mode-title">Тест 50</div>
+                <div class="mode-description">50 случайных вопросов из общей базы. Мгновенная проверка.</div>
+                <span class="mode-count">50 вопросов</span>
+            </button>
+            <button class="mode-card exam" onclick="startMode('exam50')">
+                <div class="mode-icon">🎓</div><div class="mode-title">Экзамен 50</div>
+                <div class="mode-description">Как на настоящем экзамене. Без подсказок и промежуточных ответов.</div>
+                <span class="mode-count">50 вопросов</span>
+            </button>
+            <button class="mode-card exam" onclick="startMode('examAll')">
+                <div class="mode-icon">🏥</div><div class="mode-title">Полный экзамен</div>
+                <div class="mode-description">Проверка по всей базе вопросов. Все ответы оцениваются в конце.</div>
+                <span class="mode-count">Все вопросы</span>
+            </button>
+            <button class="mode-card" onclick="startMode('mistakes')">
+                <div class="mode-icon">🔁</div><div class="mode-title">Работа над ошибками</div>
+                <div class="mode-description">Вопросы, в которых ранее были допущены ошибки.</div>
+                <span class="mode-count" id="mistakeCount">0 вопросов</span>
+            </button>
+            <button class="mode-card" onclick="startMode('repeat')">
+                <div class="mode-icon">🧠</div><div class="mode-title">Повторение</div>
+                <div class="mode-description">Вопросы, для которых уже наступило время повторения.</div>
+                <span class="mode-count" id="repeatCount">0 вопросов</span>
+            </button>
+            <button class="mode-card" onclick="startMode('favorites')">
+                <div class="mode-icon">⭐</div><div class="mode-title">Избранное</div>
+                <div class="mode-description">Сложные и важные вопросы, которые вы сохранили.</div>
+                <span class="mode-count" id="favoriteCount">0 вопросов</span>
+            </button>
+            <button class="mode-card" onclick="startMode('unseen')">
+                <div class="mode-icon">🌱</div><div class="mode-title">Новые вопросы</div>
+                <div class="mode-description">Только вопросы, которые ещё ни разу не встречались.</div>
+                <span class="mode-count" id="unseenCount">0 вопросов</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Мои ошибки</div>
+        <div id="mistakesList"></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Избранное</div>
+        <div id="favoritesList"></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Последние результаты</div>
+        <div id="historyList"></div>
+    </div>
+</section>
+
+<section id="quizScreen" class="hidden">
+    <div class="panel">
         <div class="quiz-top">
             <div class="quiz-mode" id="quizModeLabel">ОБУЧЕНИЕ</div>
-            <div class="quiz-counter" id="quizCounter">Вопрос 1 из 50</div>
+            <div class="quiz-counter" id="quizCounter"></div>
         </div>
-
-        <div class="quiz-progress">
-            <div id="quizProgressFill"></div>
-        </div>
-
+        <div class="quiz-progress"><div id="quizProgressFill"></div></div>
         <div class="question-category" id="questionCategory"></div>
-
         <h2 class="question-title" id="questionTitle"></h2>
-
-        <div class="question-instruction" id="questionInstruction">
-            Выберите правильный ответ.
-        </div>
-
+        <div class="question-instruction" id="questionInstruction"></div>
         <div class="options" id="optionsContainer"></div>
-
         <div class="hint-box" id="hintBox"></div>
-
-        <button class="hint-button" id="hintButton" onclick="toggleHint()">
-            💡 Показать подсказку
-        </button>
-
+        <button class="hint-button" id="hintButton" onclick="toggleHint()">💡 Показать подсказку</button>
         <div class="feedback" id="feedback">
             <div class="feedback-title" id="feedbackTitle"></div>
             <div class="feedback-description" id="feedbackDescription"></div>
         </div>
-
         <div class="quiz-actions">
-            <button class="btn btn-primary" id="answerButton" onclick="submitAnswer()">
-                Проверить ответ
-            </button>
+            <button class="btn btn-primary" id="answerButton" onclick="submitAnswer()">Проверить ответ</button>
         </div>
-
         <div class="quiz-bottom">
-            <button class="hint-button" onclick="toggleFavorite()">
-                <span id="favoriteButtonText">☆ В избранное</span>
-            </button>
-
-            <button class="hint-button" onclick="goDashboard()">
-                ← На главную
-            </button>
+            <button class="hint-button" onclick="toggleFavorite()"><span id="favoriteButtonText">☆ В избранное</span></button>
+            <button class="hint-button" onclick="goDashboard()">← На главную</button>
         </div>
-
     </div>
-
 </section>
-
-<!-- ЭКРАН РЕЗУЛЬТАТА -->
 
 <section id="resultScreen" class="hidden">
-
     <div class="panel result-screen">
-
         <div class="result-icon" id="resultIcon">🏆</div>
-
         <h2 id="resultTitle">Тест завершён!</h2>
-
         <p class="result-description" id="resultDescription"></p>
-
         <div class="result-percent" id="resultPercent">0%</div>
-
         <div class="result-grid">
-
-            <div class="result-box">
-                <strong id="resultCorrect">0</strong>
-                <span>Правильных</span>
-            </div>
-
-            <div class="result-box">
-                <strong id="resultWrong">0</strong>
-                <span>Ошибок</span>
-            </div>
-
-            <div class="result-box">
-                <strong id="resultTotal">0</strong>
-                <span>Вопросов</span>
-            </div>
-
+            <div class="result-box"><strong id="resultCorrect">0</strong><span>Правильных</span></div>
+            <div class="result-box"><strong id="resultWrong">0</strong><span>Ошибок</span></div>
+            <div class="result-box"><strong id="resultTotal">0</strong><span>Вопросов</span></div>
         </div>
-
         <div id="resultExtra" class="small-text"></div>
-
         <div class="result-buttons">
-
-            <button class="btn btn-primary btn-full" onclick="goDashboard()">
-                На главную
-            </button>
-
-            <button class="btn btn-secondary btn-full" id="resultMistakesButton" onclick="startMode('mistakes')">
-                Повторить ошибки
-            </button>
-
-            <button class="btn btn-light btn-full" onclick="startMode('test50')">
-                Новый тест из 50 вопросов
-            </button>
-
-            <button class="btn btn-light btn-full" onclick="showReview()">
-                Посмотреть ответы
-            </button>
-
+            <button class="btn btn-primary btn-full" onclick="goDashboard()">На главную</button>
+            <button class="btn btn-secondary btn-full" id="resultMistakesButton" onclick="startMode('mistakes')">Повторить ошибки</button>
+            <button class="btn btn-light btn-full" onclick="startMode('test50')">Новый тест из 50 вопросов</button>
+            <button class="btn btn-light btn-full" onclick="showReview()">Посмотреть ответы</button>
         </div>
-
     </div>
-
 </section>
-
-<!-- РАЗБОР ОТВЕТОВ -->
 
 <section id="reviewScreen" class="hidden">
-
     <div class="panel">
-
         <div class="panel-title">Разбор ответов</div>
-
-        <p class="small-text">
-            Здесь можно посмотреть свои ответы и правильные варианты.
-        </p>
-
+        <p class="small-text">Здесь можно посмотреть свои ответы и правильные варианты.</p>
         <div id="reviewList"></div>
-
-        <button class="btn btn-primary btn-full" style="margin-top:22px" onclick="goDashboard()">
-            Вернуться на главную
-        </button>
-
+        <button class="btn btn-primary btn-full" style="margin-top:22px" onclick="goDashboard()">Вернуться на главную</button>
     </div>
-
 </section>
 
-<div class="footer">
-    МедТест 2.0 · Персональный тренажёр медицинских знаний
-    <br>
-    Прогресс сохраняется автоматически на этом устройстве.
-</div>
-
+<div class="footer">МедТест 2.0 · Персональный тренажёр медицинских знаний<br>Прогресс сохраняется автоматически на этом устройстве.</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-
-// =====================================================
-// 1. НАСТРОЙКИ И ВОПРОСЫ
-// =====================================================
-
-// Если захочешь вставить вопросы прямо в HTML,
-// можно поместить массив в QUESTIONS.
-// При пустом массиве вопросы загружаются из questions.json.
-
-const QUESTIONS = [];
+"use strict";
 
 const QUESTIONS_URL = "./questions.json";
-
 const STORAGE_KEY = "medtest_2_progress_v1";
-
-const REVIEW_INTERVALS = [
-    1,
-    3,
-    7,
-    14,
-    30
-];
-
-// =====================================================
-// 2. СОСТОЯНИЕ
-// =====================================================
+const REVIEW_INTERVALS = [1, 3, 7, 14, 30];
 
 let allQuestions = [];
-
 let questionMap = new Map();
 
 let state = {
@@ -203,415 +322,267 @@ let state = {
     lastResult: null
 };
 
-let screen = "dashboard";
-
 let selectedAnswers = [];
-
 let answered = false;
-
 let currentHintVisible = false;
+let finishing = false;
 
-let currentOptions = [];
-
-// =====================================================
-// 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// =====================================================
+const $ = id => document.getElementById(id);
 
 function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, character => {
-        const entities = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        };
-
-        return entities[character];
-    });
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+    })[c]);
 }
 
 function shuffle(array) {
     const result = [...array];
-
     for (let i = result.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-
         [result[i], result[j]] = [result[j], result[i]];
     }
-
     return result;
 }
 
 function formatDate(timestamp) {
     if (!timestamp) return "—";
-
     return new Date(timestamp).toLocaleString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
+        day:"2-digit", month:"2-digit", year:"numeric",
+        hour:"2-digit", minute:"2-digit"
     });
 }
 
-function formatTimeRemaining(timestamp) {
-    if (!timestamp) return "";
-
-    const remaining = timestamp - Date.now();
-
-    if (remaining <= 0) return "уже доступно";
-
-    const hours = Math.ceil(remaining / 3600000);
-
-    if (hours < 24) {
-        return "через " + hours + " ч.";
-    }
-
-    return "через " + Math.ceil(hours / 24) + " дн.";
-}
-
 function notify(message) {
-    const toast = document.getElementById("toast");
-
+    const toast = $("toast");
     toast.textContent = message;
     toast.classList.add("show");
-
-    clearTimeout(notify.timeout);
-
-    notify.timeout = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2600);
+    clearTimeout(notify.timer);
+    notify.timer = setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
 function getCorrectAnswers(question) {
-    if (
-        Array.isArray(question.answers) &&
-        question.answers.length > 0
-    ) {
-        return [...new Set(question.answers.map(Number))].sort(
-            (a, b) => a - b
-        );
-    }
+    // Если answers присутствует в JSON, используем именно его.
+    const source = Object.prototype.hasOwnProperty.call(question, "answers")
+        ? question.answers
+        : [question.answer];
 
-    if (question.answer !== undefined) {
-        return [Number(question.answer)];
-    }
+    if (!Array.isArray(source)) return [];
 
-    return [];
+    return [...new Set(source.map(Number))].sort((a,b) => a-b);
 }
 
 function isMulti(question) {
     return getCorrectAnswers(question).length > 1;
 }
 
-function sameAnswers(first, second) {
-    const a = [...first].sort((x, y) => x - y);
-    const b = [...second].sort((x, y) => x - y);
-
-    return a.length === b.length &&
-        a.every((value, index) => value === b[index]);
+function sameAnswers(a, b) {
+    const first = [...a].sort((x,y) => x-y);
+    const second = [...b].sort((x,y) => x-y);
+    return first.length === second.length &&
+        first.every((value,index) => value === second[index]);
 }
-
-// =====================================================
-// 4. СОЗДАНИЕ СТАБИЛЬНЫХ ID
-// =====================================================
 
 function makeHash(text) {
     let hash = 2166136261;
-
-    for (let i = 0; i < text.length; i++) {
+    for (let i=0; i<text.length; i++) {
         hash ^= text.charCodeAt(i);
         hash = Math.imul(hash, 16777619);
     }
-
     return (hash >>> 0).toString(16);
 }
 
 function normalizeQuestions(data) {
-    if (!Array.isArray(data)) {
-        throw new Error("questions.json должен содержать JSON-массив.");
-    }
-
-    if (data.length === 0) {
-        throw new Error("В файле нет вопросов.");
+    if (!Array.isArray(data) || !data.length) {
+        throw new Error("В questions.json нет вопросов или файл имеет неверный формат.");
     }
 
     const seen = new Map();
 
-    return data.map((question, index) => {
-        if (
-            !question ||
-            typeof question.question !== "string" ||
-            !Array.isArray(question.options) ||
-            question.options.length < 2
-        ) {
-            throw new Error(
-                "Ошибка структуры вопроса №" + (index + 1)
-            );
+    return data.map((q,index) => {
+        if (!q || typeof q.question !== "string" ||
+            !Array.isArray(q.options) || q.options.length < 2) {
+            throw new Error("Неверная структура вопроса №" + (index+1));
         }
 
-        const answers = getCorrectAnswers(question);
-
-        if (
-            answers.length === 0 ||
-            answers.some(answer =>
-                !Number.isInteger(answer) ||
-                answer < 0 ||
-                answer >= question.options.length
-            )
-        ) {
-            throw new Error(
-                "Ошибка правильных ответов в вопросе №" + (index + 1)
-            );
+        if (q.options.some(o => typeof o !== "string" || !o.trim())) {
+            throw new Error("Пустой вариант ответа в вопросе №" + (index+1));
         }
 
-        if (
-            question.options.some(
-                option => typeof option !== "string" ||
-                option.trim() === ""
-            )
-        ) {
-            throw new Error(
-                "Пустой или неверный вариант ответа в вопросе №" +
-                (index + 1)
-            );
+        if (Object.prototype.hasOwnProperty.call(q,"answers") &&
+            !Array.isArray(q.answers)) {
+            throw new Error("Поле answers должно быть массивом в вопросе №" + (index+1));
         }
 
-        const base = question.id !== undefined &&
-            question.id !== null
-            ? "id:" + String(question.id)
-            : "hash:" + makeHash(
-                question.question + "|" +
-                question.options.join("|")
-            );
+        const answers = getCorrectAnswers(q);
+
+        if (!answers.length || answers.some(a =>
+            !Number.isInteger(a) || a < 0 || a >= q.options.length
+        )) {
+            throw new Error("Неверный правильный ответ в вопросе №" + (index+1));
+        }
+
+        const base = q.id != null
+            ? "id:" + String(q.id)
+            : "hash:" + makeHash(q.question + "|" + q.options.join("|"));
 
         const occurrence = seen.get(base) || 0;
-
-        seen.set(base, occurrence + 1);
+        seen.set(base, occurrence+1);
 
         return {
-            ...question,
-            _qid: base + ":" + occurrence,
-            _position: index,
-            _answers: answers
+            ...q,
+            _qid:base + ":" + occurrence,
+            _position:index,
+            _answers:answers
         };
     });
 }
 
-// =====================================================
-// 5. СОХРАНЕНИЕ ПРОГРЕССА
-// =====================================================
+// ---------------- СОХРАНЕНИЕ ----------------
 
 function saveState() {
     try {
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(state)
-        );
-
-        const indicator = document.getElementById("saveIndicator");
-
-        if (indicator) {
-            indicator.textContent = "✓ Сохранено";
-        }
-
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        $("saveIndicator").textContent = "✓ Сохранено";
         return true;
-
     } catch (error) {
-        notify("Не удалось сохранить прогресс. Сделайте резервную копию.");
-
+        $("saveIndicator").textContent = "⚠ Ошибка сохранения";
+        console.error(error);
         return false;
     }
 }
 
 function loadState() {
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
 
-        if (!saved) return;
+        const data = JSON.parse(raw);
+        if (!data || data.version !== 1) return;
 
-        const parsed = JSON.parse(saved);
-
-        if (
-            parsed &&
-            typeof parsed === "object" &&
-            parsed.version === 1
-        ) {
-            state = {
-                version: 1,
-                stats: parsed.stats || {},
-                favorites: Array.isArray(parsed.favorites)
-                    ? parsed.favorites
-                    : [],
-                history: Array.isArray(parsed.history)
-                    ? parsed.history
-                    : [],
-                session: parsed.session || null,
-                lastResult: parsed.lastResult || null
-            };
-        }
-
+        state = {
+            version:1,
+            stats:data.stats && typeof data.stats === "object" ? data.stats : {},
+            favorites:Array.isArray(data.favorites) ? data.favorites : [],
+            history:Array.isArray(data.history) ? data.history : [],
+            session:data.session || null,
+            lastResult:data.lastResult || null
+        };
     } catch (error) {
-        console.error("Ошибка загрузки прогресса:", error);
+        console.error("Не удалось прочитать сохранённый прогресс:",error);
+        notify("Не удалось прочитать сохранённый прогресс.");
     }
 }
 
-// =====================================================
-// 6. ЗАГРУЗКА ВОПРОСОВ
-// =====================================================
+function getStats(id) {
+    if (!state.stats[id]) {
+        state.stats[id] = {
+            attempts:0, correct:0, wrong:0, streak:0,
+            needsReview:false, mastered:false, dueAt:null, lastSeen:null
+        };
+    }
+    return state.stats[id];
+}
+
+// ---------------- ЗАГРУЗКА ----------------
 
 async function loadQuestions() {
     try {
-        let data;
+        const response = await fetch(QUESTIONS_URL, {cache:"no-store"});
+        if (!response.ok) throw new Error("HTTP " + response.status);
 
-        if (QUESTIONS.length > 0) {
-            data = QUESTIONS;
-        } else {
-            const response = await fetch(QUESTIONS_URL, {
-                cache: "no-store"
-            });
-
-            if (!response.ok) {
-                throw new Error(
-                    "Не удалось загрузить questions.json. HTTP " +
-                    response.status
-                );
-            }
-
-            data = await response.json();
-        }
-
+        const data = await response.json();
         allQuestions = normalizeQuestions(data);
+        questionMap = new Map(allQuestions.map(q => [q._qid,q]));
 
-        questionMap = new Map(
-            allQuestions.map(question => [
-                question._qid,
-                question
-            ])
-        );
+        const valid = new Set(allQuestions.map(q => q._qid));
 
-        // Убираем из старых данных ID, которых больше нет в JSON.
-        const validIds = new Set(
-            allQuestions.map(question => question._qid)
-        );
+        state.favorites = state.favorites.filter(id => valid.has(id));
 
-        state.favorites = state.favorites.filter(
-            id => validIds.has(id)
-        );
+        Object.keys(state.stats).forEach(id => {
+            if (!valid.has(id)) delete state.stats[id];
+        });
 
         if (state.session) {
-            state.session.items =
-                state.session.items.filter(id => validIds.has(id));
+            state.session.items = Array.isArray(state.session.items)
+                ? state.session.items.filter(id => valid.has(id)) : [];
 
-            Object.keys(state.session.responses || {}).forEach(id => {
-                if (!validIds.has(id)) {
-                    delete state.session.responses[id];
-                }
-            });
-
-            if (
-                state.session.items.length === 0 ||
-                state.session.index >= state.session.items.length
-            ) {
+            if (!state.session.items.length) {
                 state.session = null;
+            } else {
+                state.session.index = Math.max(0,Math.min(
+                    Number(state.session.index)||0,
+                    state.session.items.length-1
+                ));
+                state.session.responses = state.session.responses || {};
+                state.session.currentSelection = state.session.currentSelection || [];
             }
         }
 
         saveState();
-
-        document.getElementById("statTotal").textContent =
-            allQuestions.length;
-
-        document.getElementById("learningCount").textContent =
-            allQuestions.length + " вопросов";
-
         renderDashboard();
 
     } catch (error) {
-        document.getElementById("dashboard").innerHTML = `
+        console.error(error);
+        $("dashboard").innerHTML = `
             <div class="panel">
                 <h2>Не удалось загрузить вопросы</h2>
                 <p>${escapeHTML(error.message)}</p>
-                <p class="small-text">
-                    Проверьте, что index.html и questions.json
-                    находятся в корне одного репозитория.
-                </p>
-                <button class="btn btn-primary" onclick="location.reload()">
-                    Повторить загрузку
-                </button>
-            </div>
-        `;
+                <p class="small-text">Проверь, что index.html и questions.json находятся в одном репозитории и в одной папке.</p>
+                <button class="btn btn-primary" onclick="location.reload()">Повторить загрузку</button>
+            </div>`;
     }
 }
 
-// =====================================================
-// 7. СТАТИСТИКА
-// =====================================================
+// ---------------- СТАТИСТИКА ----------------
 
 function getStudiedCount() {
-    return allQuestions.filter(
-        question => getStats(question._qid).attempts > 0
-    ).length;
+    return allQuestions.filter(q => getStats(q._qid).attempts > 0).length;
 }
 
 function getMistakes() {
-    return allQuestions.filter(
-        question => getStats(question._qid).needsReview
-    );
+    return allQuestions.filter(q => getStats(q._qid).needsReview);
 }
 
 function getMasteredCount() {
-    return allQuestions.filter(
-        question => getStats(question._qid).mastered
-    ).length;
+    return allQuestions.filter(q => getStats(q._qid).mastered).length;
 }
 
 function getDueQuestions() {
-    return allQuestions.filter(question => {
-        const stats = getStats(question._qid);
-
-        return stats.needsReview &&
-            stats.dueAt &&
-            stats.dueAt <= Date.now();
+    return allQuestions.filter(q => {
+        const s = getStats(q._qid);
+        return s.needsReview && s.dueAt && s.dueAt <= Date.now();
     });
 }
 
 function getUnseenQuestions() {
-    return allQuestions.filter(
-        question => getStats(question._qid).attempts === 0
-    );
+    return allQuestions.filter(q => getStats(q._qid).attempts === 0);
 }
 
-// =====================================================
-// 8. ГЛАВНЫЙ ЭКРАН
-// =====================================================
+function getModeName(mode) {
+    return ({
+        learning:"Обучение", test50:"Тест из 50",
+        exam50:"Экзамен из 50", examAll:"Полный экзамен",
+        mistakes:"Работа над ошибками", repeat:"Повторение",
+        favorites:"Избранное", unseen:"Новые вопросы"
+    })[mode] || "Тестирование";
+}
+
+function isExamMode(mode) {
+    return mode === "exam50" || mode === "examAll";
+}
+
+// ---------------- ЭКРАНЫ ----------------
 
 function showScreen(name) {
-    screen = name;
-
-    [
-        "dashboard",
-        "quizScreen",
-        "resultScreen",
-        "reviewScreen"
-    ].forEach(id => {
-        document.getElementById(id).classList.add("hidden");
-    });
-
+    ["dashboard","quizScreen","resultScreen","reviewScreen"].forEach(id =>
+        $(id).classList.add("hidden")
+    );
     const target = {
-        dashboard: "dashboard",
-        quiz: "quizScreen",
-        result: "resultScreen",
-        review: "reviewScreen"
+        dashboard:"dashboard", quiz:"quizScreen",
+        result:"resultScreen", review:"reviewScreen"
     }[name];
-
-    document.getElementById(target).classList.remove("hidden");
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    $(target).classList.remove("hidden");
+    window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function renderDashboard() {
@@ -620,1046 +591,614 @@ function renderDashboard() {
     const mastered = getMasteredCount();
     const due = getDueQuestions().length;
     const favorites = state.favorites.length;
-    const unseen = allQuestions.length - studied;
+    const unseen = allQuestions.length-studied;
+    const percent = allQuestions.length ? Math.round(studied/allQuestions.length*100) : 0;
 
-    const percent = allQuestions.length
-        ? Math.round(studied / allQuestions.length * 100)
-        : 0;
+    $("statTotal").textContent = allQuestions.length;
+    $("statStudied").textContent = studied;
+    $("statMistakes").textContent = mistakes;
+    $("statMastered").textContent = mastered;
+    $("learningCount").textContent = allQuestions.length+" вопросов";
+    $("progressNumber").textContent = studied+" из "+allQuestions.length;
+    $("overallProgress").style.width = percent+"%";
+    $("overallPercent").textContent = percent+"%";
+    $("mistakeCount").textContent = mistakes+" вопросов";
+    $("repeatCount").textContent = due+" вопросов";
+    $("favoriteCount").textContent = favorites+" вопросов";
+    $("unseenCount").textContent = unseen+" вопросов";
 
-    document.getElementById("statStudied").textContent = studied;
-    document.getElementById("statMistakes").textContent = mistakes;
-    document.getElementById("statMastered").textContent = mastered;
-
-    document.getElementById("progressNumber").textContent =
-        studied + " из " + allQuestions.length;
-
-    document.getElementById("overallProgress").style.width =
-        percent + "%";
-
-    document.getElementById("overallPercent").textContent =
-        percent + "%";
-
-    document.getElementById("mistakeCount").textContent =
-        mistakes + " вопросов";
-
-    document.getElementById("repeatCount").textContent =
-        due + " вопросов";
-
-    document.getElementById("favoriteCount").textContent =
-        favorites + " вопросов";
-
-    document.getElementById("unseenCount").textContent =
-        unseen + " вопросов";
-
-    document.getElementById("mistakeCount").textContent =
-        mistakes + " вопросов";
-
-    document.getElementById("resumePanel").classList.toggle(
-        "hidden",
-        !state.session
-    );
+    $("resumePanel").classList.toggle("hidden",!state.session);
 
     if (state.session) {
-        const session = state.session;
-
-        const question = session.items[session.index];
-
-        const modeName = getModeName(session.mode);
-
-        document.getElementById("resumeInfo").textContent =
-            modeName + " · Вопрос " +
-            Math.min(session.index + 1, session.items.length) +
-            " из " + session.items.length +
-            " · Сессия начата " +
-            formatDate(session.createdAt);
+        $("resumeInfo").textContent =
+            getModeName(state.session.mode)+" · Вопрос "+
+            (state.session.index+1)+" из "+state.session.items.length+
+            " · Начато "+formatDate(state.session.createdAt);
     }
 
-    renderCategories();
     renderHistory();
-
+    renderQuestionLists();
     showScreen("dashboard");
 }
 
-// =====================================================
-// 9. КАТЕГОРИИ
-// =====================================================
-
-function renderCategories() {
-    const select = document.getElementById("categorySelect");
-
-    const categories = [
-        ...new Set(
-            allQuestions
-                .map(question => question.category)
-                .filter(value =>
-                    typeof value === "string" &&
-                    value.trim() !== ""
-                )
-        )
-    ].sort((a, b) => a.localeCompare(b, "ru"));
-
-    select.innerHTML = "";
-
-    if (categories.length === 0) {
-        select.innerHTML =
-            '<option value="">Категории не указаны</option>';
-
-        select.disabled = true;
-
-        return;
-    }
-
-    select.disabled = false;
-
-    select.innerHTML =
-        '<option value="">Выберите тему</option>';
-
-    categories.forEach(category => {
-        const count = allQuestions.filter(
-            question => question.category === category
-        ).length;
-
-        const option = document.createElement("option");
-
-        option.value = category;
-        option.textContent = category + " (" + count + ")";
-
-        select.appendChild(option);
-    });
-}
-
-function startCategory() {
-    const category = document.getElementById("categorySelect").value;
-
-    if (!category) {
-        notify("Сначала выберите тему.");
-        return;
-    }
-
-    const questions = allQuestions.filter(
-        question => question.category === category
-    );
-
-    startCustomSession(
-        "category",
-        questions,
-        "Тема: " + category,
-        true
-    );
-}
-
-// =====================================================
-// 10. ИСТОРИЯ ЭКЗАМЕНОВ
-// =====================================================
-
 function renderHistory() {
-    const container = document.getElementById("historyList");
-
-    if (!state.history.length) {
-        container.innerHTML = `
-            <div class="empty-state">
-                Пока нет завершённых тестов.
-                Результаты будут появляться здесь автоматически.
-            </div>
-        `;
-
-        return;
-    }
-
+    const container = $("historyList");
     container.innerHTML = "";
 
-    state.history.slice(0, 7).forEach(item => {
-        const row = document.createElement("div");
+    if (!state.history.length) {
+        container.innerHTML = '<div class="empty-state">Пока нет завершённых тестов. Результаты появятся здесь автоматически.</div>';
+        return;
+    }
 
+    state.history.slice(0,7).forEach(item => {
+        const row = document.createElement("div");
         row.className = "history-row";
 
         const left = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = item.title;
+        const date = document.createElement("div");
+        date.className = "small-text";
+        date.textContent = formatDate(item.date);
+        left.append(title,date);
 
-        left.innerHTML = `
-            <strong>${escapeHTML(item.title)}</strong>
-            <div class="small-text">${escapeHTML(formatDate(item.date))}</div>
-        `;
+        const score = document.createElement("div");
+        score.className = "history-score";
+        score.textContent = `${item.correct}/${item.total} · ${item.percent}%`;
 
-        const right = document.createElement("div");
-
-        right.className = "history-score";
-
-        right.textContent =
-            item.correct + "/" + item.total + " · " +
-            item.percent + "%";
-
-        row.appendChild(left);
-        row.appendChild(right);
-
+        row.append(left,score);
         container.appendChild(row);
     });
 }
 
-// =====================================================
-// 11. НАЗВАНИЯ РЕЖИМОВ
-// =====================================================
-
-function getModeName(mode) {
-    const names = {
-        learning: "Обучение",
-        test50: "Тест из 50",
-        exam50: "Экзамен из 50",
-        examAll: "Полный экзамен",
-        mistakes: "Работа над ошибками",
-        repeat: "Интервальное повторение",
-        favorites: "Избранное",
-        unseen: "Новые вопросы",
-        category: "Тематический тест"
-    };
-
-    return names[mode] || "Тестирование";
+function renderQuestionLists() {
+    renderSavedList("mistakesList",getMistakes(),"Пока нет вопросов для работы над ошибками.");
+    renderSavedList("favoritesList",allQuestions.filter(q => state.favorites.includes(q._qid)),"В избранном пока нет вопросов.");
 }
 
-function isExamMode(mode) {
-    return mode === "exam50" || mode === "examAll";
+function renderSavedList(containerId,questions,emptyText) {
+    const container = $(containerId);
+    container.innerHTML = "";
+
+    if (!questions.length) {
+        container.innerHTML = `<div class="empty-state">${emptyText}</div>`;
+        return;
+    }
+
+    questions.forEach(q => {
+        const item = document.createElement("div");
+        item.className = "review-item";
+
+        const title = document.createElement("div");
+        title.className = "review-question";
+        title.textContent = q.question;
+
+        const answer = document.createElement("div");
+        answer.className = "review-answer review-correct";
+        answer.textContent = "Правильный ответ: "+q._answers.map(i=>q.options[i]).join("; ");
+
+        const actions = document.createElement("div");
+        actions.className = "section-actions";
+
+        const open = document.createElement("button");
+        open.className = "btn btn-secondary";
+        open.textContent = "Повторить вопрос";
+        open.onclick = () => startSingleQuestion(q._qid);
+
+        actions.appendChild(open);
+
+        if (containerId === "favoritesList") {
+            const remove = document.createElement("button");
+            remove.className = "btn btn-light";
+            remove.textContent = "Убрать из избранного";
+            remove.onclick = () => {
+                state.favorites = state.favorites.filter(id => id !== q._qid);
+                saveState();
+                renderDashboard();
+                notify("Удалено из избранного.");
+            };
+            actions.appendChild(remove);
+        }
+
+        item.append(title,answer,actions);
+        container.appendChild(item);
+    });
 }
 
-// =====================================================
-// 12. СОЗДАНИЕ СЕССИИ
-// =====================================================
+// ---------------- СОЗДАНИЕ СЕССИИ ----------------
 
 function startMode(mode) {
     let questions = [];
 
-    let title = getModeName(mode);
+    if (mode === "learning" || mode === "examAll") questions = shuffle(allQuestions);
+    if (mode === "test50" || mode === "exam50") questions = shuffle(allQuestions).slice(0,Math.min(50,allQuestions.length));
+    if (mode === "mistakes") questions = shuffle(getMistakes());
+    if (mode === "repeat") questions = shuffle(getDueQuestions());
+    if (mode === "favorites") questions = shuffle(allQuestions.filter(q=>state.favorites.includes(q._qid)));
+    if (mode === "unseen") questions = shuffle(getUnseenQuestions());
 
-    if (mode === "learning") {
-        questions = shuffle(allQuestions);
-    }
-
-    if (mode === "test50") {
-        questions = shuffle(allQuestions).slice(
-            0,
-            Math.min(50, allQuestions.length)
-        );
-    }
-
-    if (mode === "exam50") {
-        questions = shuffle(allQuestions).slice(
-            0,
-            Math.min(50, allQuestions.length)
-        );
-    }
-
-    if (mode === "examAll") {
-        questions = shuffle(allQuestions);
-    }
-
-    if (mode === "mistakes") {
-        questions = shuffle(getMistakes());
-    }
-
-    if (mode === "repeat") {
-        questions = shuffle(getDueQuestions());
-    }
-
-    if (mode === "favorites") {
-        questions = shuffle(
-            allQuestions.filter(question =>
-                state.favorites.includes(question._qid)
-            )
-        );
-    }
-
-    if (mode === "unseen") {
-        questions = shuffle(getUnseenQuestions());
-    }
-
-    if (questions.length === 0) {
-        const messages = {
-            mistakes: "Пока нет вопросов для работы над ошибками.",
-            repeat: "Пока нет вопросов, для которых наступило время повторения.",
-            favorites: "В избранном пока нет вопросов.",
-            unseen: "Все вопросы уже встречались!"
-        };
-
-        notify(messages[mode] || "Нет доступных вопросов.");
-
+    if (!questions.length) {
+        notify(({
+            mistakes:"Пока нет вопросов для работы над ошибками.",
+            repeat:"Пока нет вопросов для повторения.",
+            favorites:"В избранном пока нет вопросов.",
+            unseen:"Все вопросы уже встречались!"
+        })[mode] || "Нет доступных вопросов.");
         return;
     }
 
-    startCustomSession(mode, questions, title, false);
+    startCustomSession(mode,questions);
 }
 
-function startCustomSession(mode, questions, title, shuffleItems) {
-    if (!questions.length) {
-        notify("Нет вопросов для этого режима.");
-        return;
-    }
+function startSingleQuestion(id) {
+    const q = questionMap.get(id);
+    if (q) startCustomSession("mistakes",[q]);
+}
 
-    if (state.session) {
-        const confirmed = confirm(
-            "У вас есть незавершённая сессия. " +
-            "Начать новую? Незавершённая сессия будет заменена."
-        );
+function startCustomSession(mode,questions) {
+    if (!questions.length) return;
 
-        if (!confirmed) return;
-    }
-
-    const items = shuffleItems
-        ? shuffle(questions)
-        : [...questions];
+    if (state.session && !confirm("Есть незавершённая сессия. Начать новую?")) return;
 
     state.session = {
-        mode: mode,
-        title: title,
-        items: items.map(question => question._qid),
-        index: 0,
-        responses: {},
-        currentSelection: [],
-        revealed: false,
-        createdAt: Date.now()
+        mode,
+        title:getModeName(mode),
+        items:questions.map(q=>q._qid),
+        index:0,
+        responses:{},
+        currentSelection:[],
+        revealed:false,
+        createdAt:Date.now()
     };
 
+    selectedAnswers = [];
+    answered = false;
     saveState();
-
     resumeSession();
 }
 
-// =====================================================
-// 13. ВОССТАНОВЛЕНИЕ СЕССИИ
-// =====================================================
-
 function resumeSession() {
-    if (!state.session) {
-        goDashboard();
-        return;
-    }
+    if (!state.session) return goDashboard();
 
-    const session = state.session;
+    const s = state.session;
+    if (s.index >= s.items.length) return finishSession();
 
-    if (session.index >= session.items.length) {
-        finishSession();
-        return;
-    }
-
-    selectedAnswers = [
-        ...(session.currentSelection || [])
-    ];
-
-    answered = !!session.revealed;
-
+    selectedAnswers = [...(s.currentSelection || [])];
+    answered = !!s.revealed;
     showScreen("quiz");
-
     renderQuestion();
 }
 
-// =====================================================
-// 14. ОТОБРАЖЕНИЕ ВОПРОСА
-// =====================================================
+// ---------------- ВОПРОС ----------------
 
 function renderQuestion() {
-    const session = state.session;
+    const s = state.session;
+    if (!s) return;
 
-    const question = questionMap.get(
-        session.items[session.index]
-    );
+    const q = questionMap.get(s.items[s.index]);
+    if (!q) return finishSession();
 
-    if (!question) {
-        finishSession();
-        return;
-    }
+    const exam = isExamMode(s.mode);
+    const multi = isMulti(q);
 
-    const total = session.items.length;
-    const number = session.index + 1;
-    const exam = isExamMode(session.mode);
-    const multi = isMulti(question);
+    $("hintBox").classList.remove("show");
+    $("hintBox").textContent = "";
+    $("hintButton").textContent = "💡 Показать подсказку";
+    $("hintButton").classList.toggle("hidden",exam || !q.hint);
 
-    currentHintVisible = false;
+    $("quizModeLabel").textContent = s.title.toUpperCase();
+    $("quizCounter").textContent = `Вопрос ${s.index+1} из ${s.items.length}`;
+    $("quizProgressFill").style.width = ((s.index+1)/s.items.length*100)+"%";
+    $("questionCategory").textContent = q.category || "МЕДИЦИНСКАЯ ПОДГОТОВКА";
+    $("questionTitle").textContent = q.question;
+    $("questionInstruction").textContent = exam
+        ? "Выберите ответ. Результат будет показан после завершения экзамена."
+        : multi ? "Выберите все правильные варианты ответа." : "Выберите один правильный ответ.";
 
-    document.getElementById("hintBox").classList.remove("show");
-    document.getElementById("hintBox").textContent = "";
-
-    document.getElementById("hintButton").classList.toggle(
-        "hidden",
-        exam || !question.hint
-    );
-
-    document.getElementById("quizModeLabel").textContent =
-        session.title.toUpperCase();
-
-    document.getElementById("quizCounter").textContent =
-        "Вопрос " + number + " из " + total;
-
-    document.getElementById("quizProgressFill").style.width =
-        Math.round(number / total * 100) + "%";
-
-    document.getElementById("questionCategory").textContent =
-        question.category || "МЕДИЦИНСКАЯ ПОДГОТОВКА";
-
-    document.getElementById("questionTitle").textContent =
-        question.question;
-
-    const instruction = exam
-        ? "Выберите ответ. Проверка будет после завершения экзамена."
-        : multi
-            ? "Выберите все правильные варианты ответа."
-            : "Выберите один правильный ответ.";
-
-    document.getElementById("questionInstruction").textContent =
-        instruction;
-
-    const container = document.getElementById("optionsContainer");
-
+    const container = $("optionsContainer");
     container.innerHTML = "";
 
-    // Порядок вариантов и их букв не меняется при перерисовке вопроса.
-    currentOptions = question.options.map((text, index) => ({
-        text: text,
-        index: index
-    }));
-
-    currentOptions.forEach((option, position) => {
+    // ВАЖНО: варианты не перемешиваются. Индекс и буква всегда соответствуют JSON.
+    q.options.forEach((text,index) => {
         const button = document.createElement("button");
-
         button.className = "option";
-
-        button.dataset.answer = option.index;
+        button.dataset.answer = index;
 
         const letter = document.createElement("span");
-
         letter.className = "option-letter";
-
-        letter.textContent = String.fromCharCode(65 + position);
+        letter.textContent = String.fromCharCode(65+index);
 
         const label = document.createElement("span");
+        label.textContent = text;
 
-        label.textContent = option.text;
+        button.append(letter,label);
 
-        button.appendChild(letter);
-        button.appendChild(label);
-
-        if (selectedAnswers.includes(option.index)) {
-            button.classList.add("selected");
-        }
+        if (selectedAnswers.includes(index)) button.classList.add("selected");
 
         if (answered && !exam) {
             button.disabled = true;
-
-            if (question._answers.includes(option.index)) {
+            if (q._answers.includes(index)) {
                 button.classList.remove("selected");
                 button.classList.add("correct");
-            } else if (selectedAnswers.includes(option.index)) {
+            } else if (selectedAnswers.includes(index)) {
                 button.classList.remove("selected");
                 button.classList.add("wrong");
             }
         }
 
-        button.addEventListener("click", () => {
-            chooseOption(option.index);
-        });
-
+        button.addEventListener("click",()=>chooseOption(index));
         container.appendChild(button);
     });
 
-    const feedback = document.getElementById("feedback");
-
-    feedback.className = "feedback";
-
-    if (answered && !exam) {
-        showFeedback(question);
-    }
+    $("feedback").className = "feedback";
+    if (answered && !exam) showFeedback(q);
 
     updateAnswerButton();
-    updateFavoriteButton(question);
-
+    updateFavoriteButton(q);
     saveState();
-
-// =====================================================
-// 15. ВЫБОР ВАРИАНТОВ
-// =====================================================
+}
 
 function chooseOption(index) {
-    const session = state.session;
+    const s = state.session;
+    if (!s || answered) return;
 
-    if (!session) return;
+    const q = questionMap.get(s.items[s.index]);
 
-    if (answered) return;
-
-    const question = questionMap.get(
-        session.items[session.index]
-    );
-
-    const multi = isMulti(question);
-
-    if (multi) {
-        if (selectedAnswers.includes(index)) {
-            selectedAnswers = selectedAnswers.filter(
-                value => value !== index
-            );
-        } else {
-            selectedAnswers.push(index);
-        }
+    if (isMulti(q)) {
+        selectedAnswers = selectedAnswers.includes(index)
+            ? selectedAnswers.filter(i=>i!==index)
+            : [...selectedAnswers,index];
     } else {
         selectedAnswers = [index];
     }
 
-    session.currentSelection = [...selectedAnswers];
-
+    s.currentSelection = [...selectedAnswers];
     saveState();
 
-    // Одиночный ответ в обычном режиме проверяется сразу.
-    // В экзамене проверка остаётся отложенной до конца.
-    // Для вопросов с несколькими правильными ответами
-    // пользователь сначала выбирает все варианты вручную.
-    if (!multi && !isExamMode(session.mode)) {
+    // Одиночный ответ в обучении и тесте проверяется сразу.
+    if (!isExamMode(s.mode) && !isMulti(q)) {
         submitAnswer();
-        return;
+    } else {
+        renderQuestion();
     }
-
-    renderQuestion();
 }
 
 function updateAnswerButton() {
-    const session = state.session;
+    const s = state.session;
+    if (!s) return;
 
-    const button = document.getElementById("answerButton");
+    const button = $("answerButton");
+    const q = questionMap.get(s.items[s.index]);
+    const exam = isExamMode(s.mode);
 
-    if (!session) return;
-
-    const question = questionMap.get(
-        session.items[session.index]
-    );
-
-    const exam = isExamMode(session.mode);
-    const multi = isMulti(question);
-
-    // После проверки показываем кнопку перехода к следующему вопросу.
     if (answered && !exam) {
-        button.classList.remove("hidden");
-
-        button.textContent =
-            session.index === session.items.length - 1
-                ? "Завершить тест →"
-                : "Следующий вопрос →";
-
+        button.textContent = s.index === s.items.length-1
+            ? "Завершить тест →" : "Следующий вопрос →";
         button.disabled = false;
-
         return;
     }
 
-    // В экзамене сохраняем прежнее поведение.
     if (exam) {
-        button.classList.remove("hidden");
-
-        button.textContent =
-            session.index === session.items.length - 1
-                ? "Завершить экзамен →"
-                : "Ответить и дальше →";
-
+        button.textContent = s.index === s.items.length-1
+            ? "Завершить экзамен →" : "Ответить и дальше →";
         button.disabled = false;
-
         return;
     }
 
-    // Для одиночного ответа кнопка проверки не нужна.
-    // Для нескольких правильных ответов она остаётся.
-    button.classList.toggle("hidden", !multi);
-
-    button.textContent =
-        selectedAnswers.length === 0
-            ? "Выберите ответ"
-            : "Проверить ответ (" +
-              selectedAnswers.length + ")";
+    button.textContent = isMulti(q)
+        ? (selectedAnswers.length ? "Проверить ответ ("+selectedAnswers.length+")" : "Выберите ответы")
+        : "Выберите ответ";
 
     button.disabled = selectedAnswers.length === 0;
 }
 
-// =====================================================
-// 16. ПОДСКАЗКИ
-// =====================================================
-
 function toggleHint() {
-    const session = state.session;
+    const s = state.session;
+    if (!s) return;
 
-    if (!session) return;
-
-    const question = questionMap.get(
-        session.items[session.index]
-    );
-
-    if (!question || !question.hint) return;
+    const q = questionMap.get(s.items[s.index]);
+    if (!q || !q.hint || isExamMode(s.mode)) return;
 
     currentHintVisible = !currentHintVisible;
-
-    const box = document.getElementById("hintBox");
-
-    box.textContent = question.hint;
-
-    box.classList.toggle("show", currentHintVisible);
-
-    document.getElementById("hintButton").textContent =
-        currentHintVisible
-            ? "Скрыть подсказку"
-            : "💡 Показать подсказку";
+    $("hintBox").textContent = q.hint;
+    $("hintBox").classList.toggle("show",currentHintVisible);
+    $("hintButton").textContent = currentHintVisible ? "Скрыть подсказку" : "💡 Показать подсказку";
 }
 
-// =====================================================
-// 17. ИЗБРАННОЕ
-// =====================================================
+// ---------------- ИЗБРАННОЕ ----------------
 
-function updateFavoriteButton(question) {
-    const active = state.favorites.includes(question._qid);
-
-    document.getElementById("favoriteButtonText").textContent =
-        active
-            ? "★ В избранном"
-            : "☆ В избранное";
+function updateFavoriteButton(q) {
+    $("favoriteButtonText").textContent =
+        state.favorites.includes(q._qid) ? "★ В избранном" : "☆ В избранное";
 }
 
 function toggleFavorite() {
-    const session = state.session;
+    const s = state.session;
+    if (!s) return;
 
-    if (!session) return;
-
-    const id = session.items[session.index];
+    const id = s.items[s.index];
 
     if (state.favorites.includes(id)) {
-        state.favorites = state.favorites.filter(
-            value => value !== id
-        );
-
+        state.favorites = state.favorites.filter(x=>x!==id);
         notify("Удалено из избранного.");
     } else {
         state.favorites.push(id);
-
         notify("Добавлено в избранное.");
     }
 
     saveState();
-
-    const question = questionMap.get(id);
-
-    updateFavoriteButton(question);
+    updateFavoriteButton(questionMap.get(id));
 }
 
-// =====================================================
-// 18. ПРОВЕРКА ОТВЕТА
-// =====================================================
+// ---------------- СТАТИСТИКА ОТВЕТОВ ----------------
 
-function checkCurrentAnswer(question) {
-    return sameAnswers(
-        selectedAnswers,
-        question._answers
-    );
-}
-
-function recordAnswer(question, selected, correct) {
-    const stats = getStats(question._qid);
+function recordAnswer(q,selected,correct) {
+    const stats = getStats(q._qid);
 
     stats.attempts++;
-
     stats.lastSeen = Date.now();
 
     if (correct) {
         stats.correct++;
+        stats.streak++;
 
+        // Правильный повтор убирает вопрос из активных ошибок.
         if (stats.needsReview) {
-            stats.streak++;
-
-            if (stats.streak >= 3) {
-                stats.needsReview = false;
-                stats.mastered = true;
-                stats.dueAt = null;
-            } else {
-                const days =
-                    REVIEW_INTERVALS[
-                        Math.min(
-                            stats.streak - 1,
-                            REVIEW_INTERVALS.length - 1
-                        )
-                    ];
-
-                stats.dueAt =
-                    Date.now() + days * 24 * 60 * 60 * 1000;
-            }
-        } else {
-            stats.streak++;
-
-            if (stats.streak >= 3 && stats.attempts >= 3) {
-                stats.mastered = true;
-            }
+            stats.needsReview = false;
+            stats.mastered = true;
+            const days = REVIEW_INTERVALS[Math.min(stats.streak-1,REVIEW_INTERVALS.length-1)];
+            stats.dueAt = Date.now()+days*86400000;
+        } else if (stats.streak >= 3) {
+            stats.mastered = true;
         }
-
     } else {
         stats.wrong++;
         stats.streak = 0;
         stats.needsReview = true;
         stats.mastered = false;
-
-        // Первое повторение через 10 минут.
-        stats.dueAt = Date.now() + 10 * 60 * 1000;
+        stats.dueAt = Date.now()+10*60*1000;
     }
 
     return {
-        selected: [...selected],
-        correct: correct,
-        completedAt: Date.now()
+        selected:[...selected],
+        correct,
+        completedAt:Date.now()
     };
 }
 
-// =====================================================
-// 19. ОБРАБОТКА ОТВЕТА
-// =====================================================
-
 function submitAnswer() {
-    const session = state.session;
+    const s = state.session;
+    if (!s) return;
 
-    if (!session) return;
+    const q = questionMap.get(s.items[s.index]);
+    const exam = isExamMode(s.mode);
 
-    const question = questionMap.get(
-        session.items[session.index]
-    );
-
-    const exam = isExamMode(session.mode);
-
-    // Если вопрос уже проверен, переходим дальше.
     if (answered && !exam) {
         nextQuestion();
         return;
     }
 
-    // На экзамене можно пропустить вопрос.
     if (!exam && selectedAnswers.length === 0) {
         notify("Сначала выберите ответ.");
         return;
     }
 
-    const correct = checkCurrentAnswer(question);
-
-    const response = recordAnswer(
-        question,
-        selectedAnswers,
-        correct
-    );
-
-    session.responses[question._qid] = response;
-
-    session.currentSelection = [];
+    const correct = sameAnswers(selectedAnswers,q._answers);
 
     if (exam) {
-        // На экзамене ничего не показываем до окончания.
-        session.index++;
+        // Экзаменационные ответы только сохраняются в сессии.
+        // Статистика и проверка будут произведены при завершении.
+        s.responses[q._qid] = {
+            selected:[...selectedAnswers],
+            correct,
+            completedAt:Date.now()
+        };
 
-        if (session.index >= session.items.length) {
+        s.currentSelection = [];
+        s.index++;
+        selectedAnswers = [];
+
+        if (s.index >= s.items.length) {
             saveState();
             finishSession();
             return;
         }
 
-        selectedAnswers = [];
-
         saveState();
-
         renderQuestion();
-
         return;
     }
 
+    s.responses[q._qid] = recordAnswer(q,selectedAnswers,correct);
+    s.currentSelection = [];
+    s.revealed = true;
     answered = true;
-    session.revealed = true;
 
     saveState();
-
     renderQuestion();
     updateDashboardStatsQuietly();
 }
 
-// =====================================================
-// 20. ОБРАТНАЯ СВЯЗЬ
-// =====================================================
-
-function showFeedback(question) {
-    const response = state.session.responses[question._qid];
-
+function showFeedback(q) {
+    const response = state.session.responses[q._qid];
     if (!response) return;
 
     const correct = response.correct;
-
-    const feedback = document.getElementById("feedback");
-
-    feedback.className =
-        "feedback show " + (correct ? "success" : "error");
-
-    document.getElementById("feedbackTitle").textContent =
-        correct
-            ? "✓ Правильно! Отличная работа."
-            : "✕ Ответ неверный.";
-
-    const correctTexts = question._answers.map(
-        index => question.options[index]
-    );
+    $("feedback").className = "feedback show "+(correct?"success":"error");
+    $("feedbackTitle").textContent = correct ? "✓ Правильно! Отличная работа." : "✕ Ответ неверный.";
 
     let text = correct
         ? "Вы правильно ответили на вопрос."
-        : "Правильный ответ: " + correctTexts.join("; ");
+        : "Правильный ответ: "+q._answers.map(i=>q.options[i]).join("; ");
 
-    if (question.explanation) {
-        text += " " + question.explanation;
-    }
-
-    document.getElementById("feedbackDescription").textContent =
-        text;
+    if (q.explanation) text += " "+q.explanation;
+    $("feedbackDescription").textContent = text;
 }
 
-// =====================================================
-// 21. СЛЕДУЮЩИЙ ВОПРОС
-// =====================================================
-
 function nextQuestion() {
-    const session = state.session;
+    const s = state.session;
+    if (!s) return;
 
-    if (!session) return;
-
-    session.index++;
-
+    s.index++;
     selectedAnswers = [];
     answered = false;
-    session.revealed = false;
-    session.currentSelection = [];
+    s.revealed = false;
+    s.currentSelection = [];
 
-    if (session.index >= session.items.length) {
+    if (s.index >= s.items.length) {
         saveState();
         finishSession();
         return;
     }
 
     saveState();
-
     renderQuestion();
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// =====================================================
-// 22. ЗАВЕРШЕНИЕ СЕССИИ
-// =====================================================
+// ---------------- ЗАВЕРШЕНИЕ ----------------
 
 function finishSession() {
-    const session = state.session;
+    const s = state.session;
+    if (!s || finishing) return;
 
-    if (!session) return;
+    finishing = true;
 
-    let correct = 0;
-    let wrong = 0;
-
+    let correctCount = 0;
+    let wrongCount = 0;
     const responses = [];
 
-    session.items.forEach(id => {
-        const question = questionMap.get(id);
+    s.items.forEach(id => {
+        const q = questionMap.get(id);
+        if (!q) return;
 
-        const response = session.responses[id] || {
-            selected: [],
-            correct: false,
-            completedAt: Date.now()
-        };
+        let response = s.responses[id];
 
-        if (response.correct) {
-            correct++;
-        } else {
-            wrong++;
+        if (!response) {
+            response = {
+                selected:[],
+                correct:false,
+                completedAt:Date.now()
+            };
         }
 
+        // В экзамене статистика записывается только здесь и один раз.
+        if (isExamMode(s.mode)) {
+            recordAnswer(q,response.selected,response.correct);
+        }
+
+        if (response.correct) correctCount++;
+        else wrongCount++;
+
         responses.push({
-            id: id,
-            selected: [...response.selected],
-            correct: response.correct
+            id,
+            selected:[...(response.selected || [])],
+            correct:!!response.correct
         });
     });
 
-    const total = session.items.length;
-
-    const percent = total
-        ? Math.round(correct / total * 100)
-        : 0;
+    const total = responses.length;
+    const percent = total ? Math.round(correctCount/total*100) : 0;
 
     const result = {
-        title: session.title,
-        mode: session.mode,
-        total: total,
-        correct: correct,
-        wrong: wrong,
-        percent: percent,
-        date: Date.now(),
-        items: [...session.items],
-        responses: responses
+        title:s.title,
+        mode:s.mode,
+        total,
+        correct:correctCount,
+        wrong:wrongCount,
+        percent,
+        date:Date.now(),
+        items:responses.map(r=>r.id),
+        responses
     };
 
     state.history.unshift({
-        title: result.title,
-        total: total,
-        correct: correct,
-        wrong: wrong,
-        percent: percent,
-        date: result.date
+        title:result.title,total,correct:correctCount,
+        wrong:wrongCount,percent,date:result.date
     });
 
-    state.history = state.history.slice(0, 100);
-
+    state.history = state.history.slice(0,100);
     state.lastResult = result;
-
     state.session = null;
 
     saveState();
+    finishing = false;
 
     showResult(result);
-
-    renderDashboardStats();
 }
-
-// =====================================================
-// 23. ЭКРАН РЕЗУЛЬТАТА
-// =====================================================
 
 function showResult(result) {
     showScreen("result");
 
-    document.getElementById("resultPercent").textContent =
-        result.percent + "%";
+    $("resultPercent").textContent = result.percent+"%";
+    $("resultCorrect").textContent = result.correct;
+    $("resultWrong").textContent = result.wrong;
+    $("resultTotal").textContent = result.total;
+    $("resultTitle").textContent = result.mode.startsWith("exam")
+        ? "Экзамен завершён!" : "Тест завершён!";
 
-    document.getElementById("resultCorrect").textContent =
-        result.correct;
+    let description,icon;
 
-    document.getElementById("resultWrong").textContent =
-        result.wrong;
-
-    document.getElementById("resultTotal").textContent =
-        result.total;
-
-    document.getElementById("resultTitle").textContent =
-        result.mode.startsWith("exam")
-            ? "Экзамен завершён!"
-            : "Тест завершён!";
-
-    let description = "";
-
-    let icon = "📚";
-
-    if (result.percent >= 90) {
-        description =
-            "Превосходный результат! Вы отлично справились.";
-        icon = "🏆";
-    } else if (result.percent >= 75) {
-        description =
-            "Хороший результат! Продолжайте закреплять знания.";
-        icon = "🌿";
-    } else if (result.percent >= 50) {
-        description =
-            "Есть хорошая база. Рекомендуем повторить ошибки.";
-        icon = "📖";
+    if (result.percent>=90) {
+        description="Превосходный результат! Вы отлично справились.";
+        icon="🏆";
+    } else if (result.percent>=75) {
+        description="Хороший результат! Продолжайте закреплять знания.";
+        icon="🌿";
+    } else if (result.percent>=50) {
+        description="Есть хорошая база. Рекомендуем повторить ошибки.";
+        icon="📖";
     } else {
-        description =
-            "Не расстраивайтесь. Повторение поможет улучшить результат.";
-        icon = "🩺";
+        description="Повторение поможет улучшить результат.";
+        icon="🩺";
     }
 
-    document.getElementById("resultDescription").textContent =
-        description;
-
-    document.getElementById("resultIcon").textContent = icon;
-
-    const mistakes = result.wrong;
-
-    document.getElementById("resultMistakesButton").disabled =
-        mistakes === 0;
-
-    document.getElementById("resultMistakesButton").textContent =
-        mistakes > 0
-            ? "🔁 Повторить ошибки (" + mistakes + ")"
-            : "✓ Ошибок нет";
-
-    const mastered = getMasteredCount();
-
-    document.getElementById("resultExtra").textContent =
-        "Всего освоено вопросов в базе: " +
-        mastered + " из " + allQuestions.length + ".";
+    $("resultDescription").textContent = description;
+    $("resultIcon").textContent = icon;
+    $("resultMistakesButton").disabled = result.wrong===0;
+    $("resultMistakesButton").textContent = result.wrong
+        ? "🔁 Повторить ошибки ("+result.wrong+")" : "✓ Ошибок нет";
+    $("resultExtra").textContent =
+        "Всего освоено вопросов в базе: "+getMasteredCount()+" из "+allQuestions.length+".";
 }
 
-// =====================================================
-// 24. РАЗБОР ОТВЕТОВ
-// =====================================================
+// ---------------- РАЗБОР ----------------
 
 function showReview() {
     const result = state.lastResult;
+    if (!result) return notify("Нет завершённого теста для разбора.");
 
-    if (!result) {
-        notify("Нет завершённого теста для разбора.");
-        return;
-    }
-
-    const container = document.getElementById("reviewList");
-
+    const container = $("reviewList");
     container.innerHTML = "";
 
-    result.items.forEach(id => {
-        const question = questionMap.get(id);
-
-        if (!question) return;
-
-        const response = result.responses.find(
-            item => item.id === id
-        );
-
-        if (!response) return;
+    result.responses.forEach(response => {
+        const q = questionMap.get(response.id);
+        if (!q) return;
 
         const item = document.createElement("div");
-
         item.className = "review-item";
 
         const title = document.createElement("div");
-
         title.className = "review-question";
-
-        title.textContent = question.question;
-
-        item.appendChild(title);
-
-        const selectedTexts = response.selected.length
-            ? response.selected.map(
-                index => question.options[index]
-            ).join("; ")
-            : "Ответ не дан";
-
-        const correctTexts = question._answers.map(
-            index => question.options[index]
-        ).join("; ");
+        title.textContent = q.question;
 
         const selected = document.createElement("div");
-
-        selected.className =
-            "review-answer " +
-            (response.correct ? "review-correct" : "review-wrong");
-
-        selected.textContent =
-            (response.correct ? "✓ Ваш ответ: " : "✕ Ваш ответ: ") +
-            selectedTexts;
+        selected.className = "review-answer "+(response.correct?"review-correct":"review-wrong");
+        selected.textContent = (response.correct?"✓ Ваш ответ: ":"✕ Ваш ответ: ")+
+            (response.selected.length
+                ? response.selected.map(i=>q.options[i]).join("; ")
+                : "Ответ не дан");
 
         const correct = document.createElement("div");
-
         correct.className = "review-answer review-correct";
+        correct.textContent = "Правильный ответ: "+q._answers.map(i=>q.options[i]).join("; ");
 
-        correct.textContent =
-            "Правильный ответ: " + correctTexts;
+        item.append(title,selected,correct);
 
-        item.appendChild(selected);
-        item.appendChild(correct);
-
-        if (question.explanation) {
+        if (q.explanation) {
             const explanation = document.createElement("div");
-
             explanation.className = "review-answer";
-
-            explanation.textContent =
-                "Пояснение: " + question.explanation;
-
+            explanation.textContent = "Пояснение: "+q.explanation;
             item.appendChild(explanation);
         }
 
@@ -1669,212 +1208,38 @@ function showReview() {
     showScreen("review");
 }
 
-// =====================================================
-// 25. ОБНОВЛЕНИЕ СТАТИСТИКИ
-// =====================================================
+// ---------------- ОБНОВЛЕНИЕ ----------------
 
 function updateDashboardStatsQuietly() {
     const studied = getStudiedCount();
+    const percent = allQuestions.length ? Math.round(studied/allQuestions.length*100) : 0;
 
-    const percent = allQuestions.length
-        ? Math.round(studied / allQuestions.length * 100)
-        : 0;
-
-    document.getElementById("statStudied").textContent =
-        studied;
-
-    document.getElementById("statMistakes").textContent =
-        getMistakes().length;
-
-    document.getElementById("statMastered").textContent =
-        getMasteredCount();
-
-    document.getElementById("progressNumber").textContent =
-        studied + " из " + allQuestions.length;
-
-    document.getElementById("overallProgress").style.width =
-        percent + "%";
-
-    document.getElementById("overallPercent").textContent =
-        percent + "%";
+    $("statStudied").textContent = studied;
+    $("statMistakes").textContent = getMistakes().length;
+    $("statMastered").textContent = getMasteredCount();
+    $("progressNumber").textContent = studied+" из "+allQuestions.length;
+    $("overallProgress").style.width = percent+"%";
+    $("overallPercent").textContent = percent+"%";
 }
-
-function renderDashboardStats() {
-    renderDashboard();
-}
-
-// =====================================================
-// 26. ВОЗВРАЩЕНИЕ НА ГЛАВНУЮ
-// =====================================================
 
 function goDashboard() {
     renderDashboard();
 }
 
-// =====================================================
-// 27. РЕЗЕРВНОЕ КОПИРОВАНИЕ
-// =====================================================
+// ---------------- ЗАПУСК ----------------
 
-function exportBackup() {
-    const backup = {
-        application: "MedTest 2.0",
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        state: state
-    };
+window.addEventListener("beforeunload",saveState);
 
-    const blob = new Blob(
-        [JSON.stringify(backup, null, 2)],
-        {type:"application/json"}
-    );
-
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-
-    link.href = url;
-
-    link.download =
-        "medtest-backup-" +
-        new Date().toISOString().slice(0, 10) +
-        ".json";
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    link.remove();
-
-    URL.revokeObjectURL(url);
-
-    notify("Резервная копия скачана.");
-}
-
-function importBackup(event) {
-    const file = event.target.files[0];
-
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function() {
-        try {
-            const backup = JSON.parse(reader.result);
-
-            const restored = backup.state;
-
-            if (
-                !restored ||
-                restored.version !== 1 ||
-                typeof restored.stats !== "object" ||
-                !Array.isArray(restored.favorites) ||
-                !Array.isArray(restored.history)
-            ) {
-                throw new Error("Неверный формат резервной копии.");
-            }
-
-            const confirmed = confirm(
-                "Восстановить резервную копию? " +
-                "Текущая статистика будет заменена."
-            );
-
-            if (!confirmed) return;
-
-            state = {
-                version: 1,
-                stats: restored.stats,
-                favorites: restored.favorites,
-                history: restored.history,
-                session: restored.session || null,
-                lastResult: restored.lastResult || null
-            };
-
-            // Проверяем существование вопросов после восстановления.
-            const validIds = new Set(
-                allQuestions.map(question => question._qid)
-            );
-
-            state.favorites = state.favorites.filter(
-                id => validIds.has(id)
-            );
-
-            Object.keys(state.stats).forEach(id => {
-                if (!validIds.has(id)) {
-                    delete state.stats[id];
-                }
-            });
-
-            if (state.session) {
-                state.session.items =
-                    state.session.items.filter(
-                        id => validIds.has(id)
-                    );
-
-                Object.keys(
-                    state.session.responses || {}
-                ).forEach(id => {
-                    if (!validIds.has(id)) {
-                        delete state.session.responses[id];
-                    }
-                });
-
-                if (!state.session.items.length) {
-                    state.session = null;
-                } else {
-                    state.session.index = Math.min(
-                        state.session.index,
-                        state.session.items.length - 1
-                    );
-                }
-            }
-
-            saveState();
-
-            renderDashboard();
-
-            notify("Прогресс успешно восстановлен.");
-
-        } catch (error) {
-            notify("Ошибка: " + error.message);
-        }
-
-        event.target.value = "";
-    };
-
-    reader.onerror = function() {
-        notify("Не удалось прочитать файл.");
-    };
-
-    reader.readAsText(file);
-}
-
-// =====================================================
-// 28. СОХРАНЕНИЕ ПРИ ЗАКРЫТИИ
-// =====================================================
-
-window.addEventListener("beforeunload", () => {
-    saveState();
+document.addEventListener("visibilitychange",()=>{
+    if (document.visibilityState==="hidden") saveState();
 });
-
-document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") {
-        saveState();
-    }
-});
-
-// =====================================================
-// 29. ЗАПУСК ПРИЛОЖЕНИЯ
-// =====================================================
 
 async function init() {
     loadState();
-
     await loadQuestions();
 }
 
 init();
-
 </script>
-
 </body>
 </html>
