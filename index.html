@@ -1,0 +1,1149 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#eaf1ed">
+<title>МедТест — Подготовка к экзамену</title>
+
+<style>
+:root {
+    --bg: #edf3ef;
+    --surface: #ffffff;
+    --primary: #315e50;
+    --primary-dark: #24483d;
+    --primary-light: #e1eee7;
+    --text: #243b34;
+    --muted: #7b9087;
+    --border: #e1eae4;
+    --green: #dff1e5;
+    --green-text: #287348;
+    --red: #f9e5e3;
+    --red-text: #b84c47;
+    --shadow: 0 12px 40px rgba(42, 75, 61, .07);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Roboto, Arial, sans-serif;
+    font-size: 19px;
+}
+
+button {
+    font: inherit;
+}
+
+.app {
+    max-width: 900px;
+    margin: auto;
+    padding: 24px 20px 50px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 15px;
+    background: var(--primary);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+    font-weight: 300;
+}
+
+.brand-name {
+    font-size: 21px;
+    font-weight: 750;
+    letter-spacing: -.5px;
+}
+
+.brand-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+}
+
+.header-label {
+    color: var(--primary);
+    background: var(--primary-light);
+    border-radius: 30px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.hero {
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: clamp(27px, 5vw, 39px);
+    margin: 0 0 10px;
+    letter-spacing: -1px;
+}
+
+.hero p {
+    color: var(--muted);
+    line-height: 1.5;
+    font-size: 16px;
+    margin: 0;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 23px;
+}
+
+.stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: 16px;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 750;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: clamp(20px, 4vw, 34px);
+    box-shadow: var(--shadow);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.progress-info strong {
+    color: var(--primary);
+}
+
+.progress-track {
+    height: 9px;
+    background: #e8efea;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 29px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    border-radius: 20px;
+    transition: width .3s;
+}
+
+.question-number {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 750;
+    margin-bottom: 12px;
+}
+
+.question {
+    font-size: clamp(21px, 4vw, 27px);
+    line-height: 1.45;
+    font-weight: 700;
+    margin: 0 0 25px;
+    white-space: pre-wrap;
+}
+
+.hint {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option {
+    width: 100%;
+    min-height: 65px;
+    padding: 16px 18px;
+    background: #fbfdfb;
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: .2s;
+    line-height: 1.45;
+}
+
+.option:hover:not(:disabled) {
+    border-color: #8eafa0;
+    background: #f5faf6;
+}
+
+.option:disabled {
+    cursor: default;
+}
+
+.option-letter {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #edf3ef;
+    display: grid;
+    place-items: center;
+    font-size: 15px;
+    font-weight: 750;
+    color: var(--primary);
+}
+
+.option.correct {
+    background: var(--green);
+    border-color: #9bc9a9;
+    color: var(--green-text);
+}
+
+.option.correct .option-letter {
+    background: #bde3c8;
+    color: #23673e;
+}
+
+.option.wrong {
+    background: var(--red);
+    border-color: #e5aaa4;
+    color: var(--red-text);
+}
+
+.option.wrong .option-letter {
+    background: #f2cbc7;
+    color: #a63e38;
+}
+
+.option.missed {
+    border-color: #83b996;
+    background: #f0f8f2;
+}
+
+.feedback {
+    display: none;
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 15px;
+    line-height: 1.5;
+    font-size: 16px;
+}
+
+.feedback.show {
+    display: block;
+}
+
+.feedback.success {
+    background: var(--green);
+    color: var(--green-text);
+}
+
+.feedback.error {
+    background: var(--red);
+    color: var(--red-text);
+}
+
+.feedback-title {
+    font-weight: 750;
+    margin-bottom: 6px;
+    font-size: 18px;
+}
+
+.feedback-text {
+    font-size: 15px;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn {
+    min-height: 56px;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 22px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn:active {
+    transform: scale(.98);
+}
+
+.btn-primary {
+    flex: 1;
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn-secondary {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.btn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.result {
+    display: none;
+    text-align: center;
+}
+
+.result.show {
+    display: block;
+}
+
+.result-icon {
+    width: 95px;
+    height: 95px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    display: grid;
+    place-items: center;
+    font-size: 45px;
+}
+
+.result h2 {
+    font-size: 30px;
+    margin: 0 0 10px;
+}
+
+.result-description {
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+
+.result-percent {
+    font-size: 58px;
+    color: var(--primary);
+    font-weight: 800;
+    margin: 15px 0;
+}
+
+.result-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.result-box {
+    background: #f4f8f5;
+    padding: 18px;
+    border-radius: 15px;
+}
+
+.result-box strong {
+    display: block;
+    font-size: 26px;
+    color: var(--primary);
+}
+
+.result-box span {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.result-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.result-buttons .btn {
+    width: 100%;
+}
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding-top: 24px;
+}
+
+.loading {
+    text-align: center;
+    padding: 55px 20px;
+    color: var(--muted);
+}
+
+.error-box {
+    display: none;
+    padding: 20px;
+    background: var(--red);
+    color: var(--red-text);
+    border-radius: 15px;
+    line-height: 1.6;
+}
+
+@media (max-width: 550px) {
+    .app {
+        padding: 17px 13px 35px;
+    }
+
+    .header {
+        margin-bottom: 25px;
+    }
+
+    .header-label {
+        font-size: 11px;
+    }
+
+    .stats {
+        gap: 7px;
+    }
+
+    .stat {
+        padding: 12px 9px;
+    }
+
+    .stat-number {
+        font-size: 21px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .card {
+        border-radius: 19px;
+    }
+
+    .option {
+        min-height: 65px;
+        padding: 13px;
+        font-size: 17px;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actions .btn {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+        <div class="brand">
+            <div class="logo">✚</div>
+            <div>
+                <div class="brand-name">МедТест</div>
+                <div class="brand-sub">Подготовка к медицинскому экзамену</div>
+            </div>
+        </div>
+        <div class="header-label">МЕДИЦИНА</div>
+    </header>
+
+    <section class="hero">
+        <h1>Тренажёр знаний</h1>
+        <p>Проверяйте знания, запоминайте правильные ответы и готовьтесь к экзамену в удобном темпе.</p>
+    </section>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-number" id="totalStat">0</div>
+            <div class="stat-label">Всего вопросов</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="correctStat">0</div>
+            <div class="stat-label">Правильных</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="percentStat">0%</div>
+            <div class="stat-label">Точность</div>
+        </div>
+    </div>
+
+    <main class="card" id="quizCard">
+
+        <div id="loading" class="loading">
+            <div style="font-size:38px;margin-bottom:15px">✚</div>
+            Загружаем вопросы...
+        </div>
+
+        <div id="errorBox" class="error-box"></div>
+
+        <div id="quiz" style="display:none">
+
+            <div class="progress-info">
+                <strong id="progressText">Вопрос 1 из 100</strong>
+                <span id="progressPercent">0%</span>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-number" id="questionNumber">
+                ВОПРОС №1
+            </div>
+
+            <h2 class="question" id="questionText"></h2>
+
+            <div class="hint" id="answerHint">
+                Выберите правильный ответ
+            </div>
+
+            <div class="options" id="options"></div>
+
+            <div class="feedback" id="feedback">
+                <div class="feedback-title" id="feedbackTitle"></div>
+                <div class="feedback-text" id="feedbackText"></div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="nextButton" disabled>
+                    Дальше →
+                </button>
+            </div>
+
+        </div>
+
+        <div class="result" id="result">
+
+            <div class="result-icon" id="resultIcon">🏥</div>
+
+            <h2>Тест завершён!</h2>
+
+            <div class="result-description" id="resultDescription">
+                Вы завершили тренировку.
+            </div>
+
+            <div class="result-percent" id="resultPercent">0%</div>
+
+            <div class="result-details">
+                <div class="result-box">
+                    <strong id="resultCorrect">0</strong>
+                    <span>Правильных ответов</span>
+                </div>
+
+                <div class="result-box">
+                    <strong id="resultWrong">0</strong>
+                    <span>Ошибок</span>
+                </div>
+            </div>
+
+            <div class="result-buttons">
+                <button class="btn btn-primary" id="restartButton">
+                    ↻ Пройти заново
+                </button>
+
+                <button class="btn btn-secondary" id="mistakesButton">
+                    📖 Работа над ошибками
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        МедТест · Тренажёр для подготовки к медицинскому экзамену
+    </footer>
+
+</div>
+
+<script>
+
+// ==========================================
+// ВОПРОСЫ
+// Основной источник: questions.json
+//
+// Поддерживаются форматы:
+// {
+//   "question": "Текст вопроса",
+//   "options": ["Ответ 1", "Ответ 2"],
+//   "answer": 0,
+//   "answers": [0, 1, 2]
+// }
+//
+// answer — основной правильный ответ.
+// answers — все правильные ответы.
+// Если answers содержит несколько индексов,
+// пользователь должен выбрать все правильные варианты.
+// ==========================================
+
+const QUESTIONS = [];
+
+// Адрес файла с вопросами в репозитории.
+const QUESTIONS_URL = "./questions.json";
+
+// ==========================================
+// СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+// ==========================================
+
+let allQuestions = [];
+let currentQuestions = [];
+let currentIndex = 0;
+let correctCount = 0;
+let wrongQuestions = [];
+let answered = false;
+let selectedAnswers = [];
+
+// Перемешивание массива.
+function shuffle(array) {
+    const result = [...array];
+
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
+}
+
+// Получение правильных ответов.
+function getCorrectAnswers(question) {
+    if (Array.isArray(question.answers) && question.answers.length) {
+        return question.answers.map(Number);
+    }
+
+    if (question.answer !== undefined) {
+        return [Number(question.answer)];
+    }
+
+    return [];
+}
+
+// Проверка структуры вопросов.
+function validateQuestions(data) {
+    if (!Array.isArray(data)) {
+        throw new Error("questions.json должен содержать JSON-массив.");
+    }
+
+    if (data.length === 0) {
+        throw new Error("В файле questions.json нет вопросов.");
+    }
+
+    data.forEach((question, index) => {
+        if (
+            typeof question.question !== "string" ||
+            !Array.isArray(question.options) ||
+            question.options.length < 2
+        ) {
+            throw new Error(
+                "Неверная структура вопроса №" + (index + 1)
+            );
+        }
+
+        const answers = getCorrectAnswers(question);
+
+        if (
+            answers.length === 0 ||
+            answers.some(
+                answer =>
+                    !Number.isInteger(answer) ||
+                    answer < 0 ||
+                    answer >= question.options.length
+            )
+        ) {
+            throw new Error(
+                "Неверные индексы правильных ответов в вопросе №" +
+                (index + 1)
+            );
+        }
+    });
+
+    return data;
+}
+
+// ==========================================
+// ЗАГРУЗКА ВОПРОСОВ
+// ==========================================
+
+async function loadQuestions() {
+    try {
+        let data;
+
+        if (QUESTIONS.length > 0) {
+            data = QUESTIONS;
+        } else {
+            const response = await fetch(QUESTIONS_URL, {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    "Не удалось загрузить questions.json. HTTP " +
+                    response.status
+                );
+            }
+
+            data = await response.json();
+        }
+
+        allQuestions = validateQuestions(data);
+
+        document.getElementById("totalStat").textContent =
+            allQuestions.length;
+
+        startQuiz(allQuestions);
+
+    } catch (error) {
+        document.getElementById("loading").style.display = "none";
+
+        const box = document.getElementById("errorBox");
+
+        box.style.display = "block";
+
+        box.innerHTML =
+            "<strong>Не удалось загрузить тест.</strong><br>" +
+            escapeHTML(error.message) +
+            "<br><br>Проверьте, что questions.json находится " +
+            "в одной папке с index.html и запускайте сайт через сервер.";
+    }
+}
+
+// Защита вывода текста.
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+
+        return entities[character];
+    });
+}
+
+// ==========================================
+// НАЧАЛО ТЕСТИРОВАНИЯ
+// ==========================================
+
+function startQuiz(questions) {
+    currentQuestions = shuffle(questions);
+
+    currentIndex = 0;
+    correctCount = 0;
+    wrongQuestions = [];
+    answered = false;
+    selectedAnswers = [];
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("errorBox").style.display = "none";
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("quiz").style.display = "block";
+
+    updateStats();
+    showQuestion();
+}
+
+// ==========================================
+// ОТОБРАЖЕНИЕ ВОПРОСА
+// ==========================================
+
+function showQuestion() {
+    answered = false;
+    selectedAnswers = [];
+
+    const question = currentQuestions[currentIndex];
+
+    const total = currentQuestions.length;
+    const number = currentIndex + 1;
+    const progress = Math.round(number / total * 100);
+
+    document.getElementById("progressText").textContent =
+        "Вопрос " + number + " из " + total;
+
+    document.getElementById("progressPercent").textContent =
+        progress + "%";
+
+    document.getElementById("progressFill").style.width =
+        progress + "%";
+
+    document.getElementById("questionNumber").textContent =
+        "ВОПРОС №" + number;
+
+    document.getElementById("questionText").textContent =
+        question.question;
+
+    const correctAnswers = getCorrectAnswers(question);
+
+    document.getElementById("answerHint").textContent =
+        correctAnswers.length > 1
+            ? "Выберите все правильные варианты ответа"
+            : "Выберите один правильный ответ";
+
+    const optionsContainer = document.getElementById("options");
+
+    optionsContainer.innerHTML = "";
+
+    // Перемешиваем варианты с сохранением исходных индексов.
+    const options = shuffle(
+        question.options.map((text, index) => ({
+            text: text,
+            originalIndex: index
+        }))
+    );
+
+    options.forEach((option, index) => {
+        const button = document.createElement("button");
+
+        button.className = "option";
+
+        button.innerHTML = `
+            <span class="option-letter">
+                ${String.fromCharCode(65 + index)}
+            </span>
+            <span>${escapeHTML(option.text)}</span>
+        `;
+
+        button.dataset.answer = option.originalIndex;
+
+        button.addEventListener("click", () => {
+            selectAnswer(option.originalIndex, button);
+        });
+
+        optionsContainer.appendChild(button);
+    });
+
+    const feedback = document.getElementById("feedback");
+
+    feedback.className = "feedback";
+
+    document.getElementById("nextButton").disabled = true;
+
+    document.getElementById("nextButton").textContent =
+        currentIndex === total - 1
+            ? "Завершить тест →"
+            : "Дальше →";
+}
+
+// ==========================================
+// ВЫБОР ОТВЕТА
+// ==========================================
+
+function selectAnswer(answerIndex, button) {
+    if (answered) return;
+
+    const question = currentQuestions[currentIndex];
+    const correctAnswers = getCorrectAnswers(question);
+
+    const isMultiple = correctAnswers.length > 1;
+
+    if (isMultiple) {
+        if (selectedAnswers.includes(answerIndex)) {
+            selectedAnswers = selectedAnswers.filter(
+                answer => answer !== answerIndex
+            );
+
+            button.classList.remove("missed");
+        } else {
+            selectedAnswers.push(answerIndex);
+            button.classList.add("missed");
+        }
+
+        updateSelectionHint();
+
+        return;
+    }
+
+    selectedAnswers = [answerIndex];
+
+    finishAnswer();
+}
+
+function updateSelectionHint() {
+    const button = document.getElementById("nextButton");
+
+    button.disabled = selectedAnswers.length === 0;
+
+    button.textContent =
+        "Проверить ответ (" + selectedAnswers.length + ")";
+
+    document.getElementById("answerHint").textContent =
+        "Выбрано вариантов: " + selectedAnswers.length +
+        ". Нажмите «Проверить ответ».";
+}
+
+// ==========================================
+// ПРОВЕРКА ОТВЕТА
+// ==========================================
+
+function finishAnswer() {
+    if (answered || selectedAnswers.length === 0) return;
+
+    answered = true;
+
+    const question = currentQuestions[currentIndex];
+    const correctAnswers = getCorrectAnswers(question);
+
+    const sortedSelected = [...selectedAnswers].sort((a, b) => a - b);
+    const sortedCorrect = [...correctAnswers].sort((a, b) => a - b);
+
+    const isCorrect =
+        sortedSelected.length === sortedCorrect.length &&
+        sortedSelected.every(
+            (answer, index) => answer === sortedCorrect[index]
+        );
+
+    if (isCorrect) {
+        correctCount++;
+    } else {
+        wrongQuestions.push(question);
+    }
+
+    const buttons = document.querySelectorAll(".option");
+
+    buttons.forEach(button => {
+        const index = Number(button.dataset.answer);
+
+        button.disabled = true;
+
+        if (correctAnswers.includes(index)) {
+            button.classList.add("correct");
+        } else if (selectedAnswers.includes(index)) {
+            button.classList.add("wrong");
+        }
+    });
+
+    const feedback = document.getElementById("feedback");
+
+    feedback.className =
+        "feedback show " + (isCorrect ? "success" : "error");
+
+    document.getElementById("feedbackTitle").textContent =
+        isCorrect
+            ? "✓ Правильно! Отличная работа."
+            : "✕ Ответ неверный.";
+
+    document.getElementById("feedbackText").textContent =
+        isCorrect
+            ? "Вы правильно ответили на вопрос."
+            : "Правильный ответ: " +
+              correctAnswers.map(
+                  index => question.options[index]
+              ).join("; ");
+
+    document.getElementById("answerHint").textContent =
+        "Ответ проверен";
+
+    const nextButton = document.getElementById("nextButton");
+
+    nextButton.disabled = false;
+
+    nextButton.textContent =
+        currentIndex === currentQuestions.length - 1
+            ? "Посмотреть результат →"
+            : "Следующий вопрос →";
+
+    updateStats();
+}
+
+// ==========================================
+// СТАТИСТИКА
+// ==========================================
+
+function updateStats() {
+    const answeredCount = currentIndex +
+        (answered ? 1 : 0);
+
+    const percent = answeredCount > 0
+        ? Math.round(correctCount / answeredCount * 100)
+        : 0;
+
+    document.getElementById("correctStat").textContent =
+        correctCount;
+
+    document.getElementById("percentStat").textContent =
+        percent + "%";
+}
+
+// ==========================================
+// СЛЕДУЮЩИЙ ВОПРОС
+// ==========================================
+
+document.getElementById("nextButton").addEventListener(
+    "click",
+    () => {
+        if (!answered) {
+            if (selectedAnswers.length > 0) {
+                finishAnswer();
+            }
+            return;
+        }
+
+        currentIndex++;
+
+        if (currentIndex < currentQuestions.length) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+);
+
+// ==========================================
+// ФИНАЛЬНЫЙ ЭКРАН
+// ==========================================
+
+function showResults() {
+    document.getElementById("quiz").style.display = "none";
+
+    const result = document.getElementById("result");
+
+    result.classList.add("show");
+
+    const total = currentQuestions.length;
+
+    const wrong = total - correctCount;
+
+    const percent = Math.round(correctCount / total * 100);
+
+    document.getElementById("resultPercent").textContent =
+        percent + "%";
+
+    document.getElementById("resultCorrect").textContent =
+        correctCount;
+
+    document.getElementById("resultWrong").textContent =
+        wrong;
+
+    let description;
+    let icon;
+
+    if (percent >= 90) {
+        description = "Превосходный результат! Вы отлично подготовлены.";
+        icon = "🏆";
+    } else if (percent >= 75) {
+        description = "Хороший результат! Осталось немного закрепить знания.";
+        icon = "🌿";
+    } else if (percent >= 50) {
+        description = "Неплохо! Повторите сложные темы и попробуйте ещё раз.";
+        icon = "📚";
+    } else {
+        description = "Есть над чем поработать. Повторение поможет улучшить результат.";
+        icon = "🩺";
+    }
+
+    document.getElementById("resultDescription").textContent =
+        description;
+
+    document.getElementById("resultIcon").textContent = icon;
+
+    document.getElementById("mistakesButton").textContent =
+        wrong > 0
+            ? "📖 Работа над ошибками (" + wrong + ")"
+            : "✓ Ошибок нет";
+
+    document.getElementById("mistakesButton").disabled =
+        wrong === 0;
+
+    document.getElementById("progressFill").style.width = "100%";
+
+    document.getElementById("progressText").textContent =
+        "Тест завершён";
+
+    document.getElementById("progressPercent").textContent =
+        "100%";
+}
+
+// ==========================================
+// ПОВТОРНОЕ ПРОХОЖДЕНИЕ
+// ==========================================
+
+document.getElementById("restartButton").addEventListener(
+    "click",
+    () => {
+        startQuiz(allQuestions);
+    }
+);
+
+// ==========================================
+// РАБОТА НАД ОШИБКАМИ
+// ==========================================
+
+document.getElementById("mistakesButton").addEventListener(
+    "click",
+    () => {
+        if (wrongQuestions.length === 0) return;
+
+        const mistakes = [...wrongQuestions];
+
+        startQuiz(mistakes);
+    }
+);
+
+// ==========================================
+// ЗАПУСК
+// ==========================================
+
+loadQuestions();
+
+</script>
+
+</body>
+</html>
